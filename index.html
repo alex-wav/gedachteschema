@@ -567,7 +567,7 @@ function resetApp(){
   render();
 }
 
-const SCOPES='https://www.googleapis.com/auth/drive.file';
+const SCOPES='https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.metadata.readonly';
 
 function saveClientId(){
   const v=document.getElementById('cid-input').value.trim();
@@ -606,23 +606,51 @@ function handleDriveSave(){
   setStatus('Verbinding maken...');
   tokenClient.requestAccessToken({prompt:accessToken?'':'consent'});
 }
+async function getOrCreateFolder(){
+  const folderName="Gedachteschema's";
+  // Search for existing folder
+  const search=await gapi.client.request({
+    path:'https://www.googleapis.com/drive/v3/files',
+    method:'GET',
+    params:{
+      q:`mimeType='application/vnd.google-apps.folder' and name='${folderName}' and trashed=false`,
+      fields:'files(id,name)'
+    },
+    headers:{'Authorization':'Bearer '+accessToken}
+  });
+  const files=JSON.parse(search.body).files;
+  if(files&&files.length>0)return files[0].id;
+  // Create folder if not found
+  const create=await gapi.client.request({
+    path:'https://www.googleapis.com/drive/v3/files',
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+accessToken},
+    body:JSON.stringify({name:folderName,mimeType:'application/vnd.google-apps.folder'})
+  });
+  return JSON.parse(create.body).id;
+}
+
 async function uploadToDrive(){
-  setStatus('Bestand aanmaken...');
-  const content=buildText();
-  const filename=`Gedachteschema ${new Date().toLocaleDateString('nl-NL')}.txt`;
-  const boundary='-------gedachteschema2025';
-  const body=`\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n`+
-    JSON.stringify({name:filename,mimeType:'text/plain'})+
-    `\r\n--${boundary}\r\nContent-Type: text/plain\r\n\r\n`+content+
-    `\r\n--${boundary}--`;
+  setStatus('Map zoeken of aanmaken...');
   try{
+    const folderId=await getOrCreateFolder();
+    setStatus('Bestand opslaan...');
+    const content=buildText();
+    const now=new Date();
+    const pad=n=>String(n).padStart(2,'0');
+    const filename=`${pad(now.getDate())}-${pad(now.getMonth()+1)}-${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}.txt`;
+    const boundary='-------gedachteschema2025';
+    const body=`\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n`+
+      JSON.stringify({name:filename,mimeType:'text/plain',parents:[folderId]})+
+      `\r\n--${boundary}\r\nContent-Type: text/plain\r\n\r\n`+content+
+      `\r\n--${boundary}--`;
     const r=await gapi.client.request({
       path:'https://www.googleapis.com/upload/drive/v3/files',
       method:'POST',params:{uploadType:'multipart'},
       headers:{'Content-Type':`multipart/related; boundary="${boundary}"`,'Authorization':'Bearer '+accessToken},
       body
     });
-    if(r.status===200)setStatus(`✓ Opgeslagen als "${filename}"`);
+    if(r.status===200)setStatus(`✓ Opgeslagen in "Gedachteschema's/${filename}"`);
     else setStatus('Fout (status '+r.status+')',true);
   }catch(e){setStatus('Fout: '+(e.result?.error?.message||e.message||'onbekend'),true);}
 }
