@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gedachteschema</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F6F1E9;
+    --surface: #EDE4D2;
+    --surface2: #E4D8C0;
+    --accent: #1A52A8;
+    --accent-l: #6B9FE8;
+    --accent-dim: #C8D8F0;
+    --txt: #1A1A2E;
+    --txt-m: #5A5A6E;
+    --space-1:4px;--space-2:8px;--space-4:16px;--space-6:24px;
+    --space-8:32px;--space-12:48px;--space-16:64px;
+    --radius-sm:8px;--radius-md:12px;--radius-lg:16px;--radius-pill:999px;
+    --ease-organic:cubic-bezier(0.16,1,0.3,1);
+    --ease-spring:cubic-bezier(0.34,1.56,0.64,1);
+    --ease-smooth:cubic-bezier(0.4,0,0.2,1);
+    --dur-fast:150ms;--dur-base:280ms;--dur-enter:520ms;
+  }
+  @media(prefers-color-scheme:dark){
+    :root{
+      --bg:#0E1220;--surface:#182040;--surface2:#1E2A50;
+      --accent:#7AABF0;--accent-l:#B0CCEE;--accent-dim:#1A3260;
+      --txt:#EEF2FA;--txt-m:#8A9AB8;
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--bg);color:var(--txt);
+    min-height:100vh;
+    padding:var(--space-12) var(--space-4) var(--space-16);
+    transition:background var(--dur-base) var(--ease-smooth),color var(--dur-base) var(--ease-smooth);
+  }
+  .container{max-width:560px;margin:0 auto;}
+
+  header{margin-bottom:var(--space-8);animation:fadeUp var(--dur-enter) var(--ease-organic) both;}
+  .eyebrow{
+    display:inline-block;font-family:'Inter',sans-serif;font-size:11px;
+    font-weight:500;letter-spacing:0.09em;text-transform:uppercase;
+    color:var(--accent-l);margin-bottom:var(--space-2);
+  }
+  header h1{
+    font-family:'Manrope',sans-serif;font-size:clamp(28px,5vw,36px);
+    font-weight:800;letter-spacing:-0.03em;line-height:1.1;color:var(--txt);
+  }
+  header p{font-size:15px;color:var(--txt-m);margin-top:var(--space-2);line-height:1.7;}
+
+  .progress-wrap{
+    display:flex;align-items:center;gap:var(--space-4);
+    margin-bottom:var(--space-8);
+    animation:fadeUp var(--dur-enter) var(--ease-organic) 60ms both;
+  }
+  .progress-track{flex:1;height:2px;background:var(--surface2);border-radius:2px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--accent);transition:width 400ms var(--ease-organic);}
+  .progress-label{
+    font-size:11px;font-weight:500;letter-spacing:0.05em;
+    color:var(--txt-m);white-space:nowrap;min-width:48px;text-align:right;
+  }
+
+  .card{
+    background:var(--surface);border-radius:var(--radius-lg);padding:var(--space-8);
+    animation:fadeUp var(--dur-enter) var(--ease-organic) 120ms both;
+    transition:background var(--dur-base) var(--ease-smooth);
+  }
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+  .step-tag{
+    display:inline-block;font-size:11px;font-weight:500;letter-spacing:0.09em;
+    text-transform:uppercase;color:var(--accent);background:var(--accent-dim);
+    padding:4px 12px;border-radius:var(--radius-pill);margin-bottom:var(--space-4);
+  }
+  .step-title{
+    font-family:'Manrope',sans-serif;font-size:24px;font-weight:700;
+    letter-spacing:-0.025em;line-height:1.2;color:var(--txt);margin-bottom:var(--space-2);
+  }
+  .step-desc{font-size:15px;color:var(--txt-m);line-height:1.7;margin-bottom:var(--space-6);}
+
+  textarea{
+    width:100%;border:1.5px solid var(--surface2);border-radius:var(--radius-md);
+    padding:14px 16px;font-size:15px;font-family:'Inter',sans-serif;
+    color:var(--txt);background:var(--bg);resize:vertical;min-height:108px;line-height:1.7;
+    transition:border-color var(--dur-fast) var(--ease-smooth),box-shadow var(--dur-fast) var(--ease-smooth),background var(--dur-base);
+  }
+  textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim);}
+  textarea::placeholder{color:var(--surface2);}
+
+  .slider-section{margin-top:var(--space-6);padding-top:var(--space-6);border-top:1px solid var(--surface2);}
+  .slider-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
+  .slider-q{font-size:13px;font-weight:500;color:var(--txt-m);}
+  .slider-val{
+    font-family:'Manrope',sans-serif;font-size:22px;font-weight:800;
+    color:var(--accent);letter-spacing:-0.02em;
+  }
+  input[type="range"]{
+    -webkit-appearance:none;width:100%;height:3px;
+    background:var(--surface2);border-radius:2px;outline:none;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--accent);cursor:pointer;border:3px solid var(--bg);
+    box-shadow:0 0 0 1.5px var(--accent);
+    transition:transform var(--dur-fast) var(--ease-spring);
+  }
+  input[type="range"]::-webkit-slider-thumb:hover{transform:scale(1.15);}
+  .slider-ends{display:flex;justify-content:space-between;font-size:11px;font-weight:500;color:var(--txt-m);margin-top:6px;}
+
+  .feeling-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);}
+  .feeling-btn{
+    padding:var(--space-4);border:1.5px solid var(--surface2);border-radius:var(--radius-md);
+    background:var(--bg);cursor:pointer;font-size:15px;font-family:'Inter',sans-serif;
+    color:var(--txt);text-align:center;
+    transition:all var(--dur-fast) var(--ease-smooth);
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+  }
+  .feeling-btn .emoji{font-size:24px;}
+  .feeling-btn:hover{border-color:var(--accent-l);transform:translateY(-2px);}
+  .feeling-btn.selected{border-color:var(--accent);background:var(--accent-dim);color:var(--accent);font-weight:500;transform:translateY(-2px);}
+
+  .hint-box{
+    background:var(--bg);border:1px solid var(--surface2);
+    border-left:3px solid var(--accent-l);
+    border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+    padding:var(--space-4) var(--space-4) var(--space-4) var(--space-6);
+    margin-bottom:var(--space-6);list-style:none;
+  }
+  .hint-box li{
+    font-size:13px;color:var(--txt-m);padding:4px 0 4px var(--space-4);
+    position:relative;line-height:1.6;
+  }
+  .hint-box li::before{content:'→';position:absolute;left:0;color:var(--accent-l);font-size:12px;}
+
+  .challenge-box{
+    background:var(--accent-dim);border-radius:var(--radius-md);
+    padding:var(--space-4) var(--space-6);margin-bottom:var(--space-6);
+  }
+  .challenge-box p{
+    font-size:13px;color:var(--txt);padding:6px 0;line-height:1.6;
+    border-bottom:1px solid var(--surface2);opacity:0.85;
+  }
+  .challenge-box p:last-child{border-bottom:none;}
+
+  .bang-callout{
+    background:var(--accent-dim);border-radius:var(--radius-md);
+    padding:var(--space-4) var(--space-6);margin-bottom:var(--space-6);
+    font-size:14px;color:var(--txt);line-height:1.65;
+  }
+
+  .nav{display:flex;gap:var(--space-2);margin-top:var(--space-8);animation:fadeUp var(--dur-enter) var(--ease-organic) 180ms both;}
+  .btn-back{
+    padding:11px var(--space-6);border:1.5px solid var(--surface2);
+    border-radius:var(--radius-pill);background:transparent;
+    font-size:14px;font-family:'Inter',sans-serif;font-weight:500;
+    color:var(--txt-m);cursor:pointer;transition:all var(--dur-fast) var(--ease-smooth);
+  }
+  .btn-back:hover{border-color:var(--accent-l);color:var(--txt);transform:translateX(-2px);}
+  .btn-next{
+    flex:1;padding:12px var(--space-8);border:none;border-radius:var(--radius-pill);
+    background:var(--accent);font-size:14px;font-family:'Inter',sans-serif;
+    font-weight:500;color:#fff;cursor:pointer;
+    transition:all var(--dur-fast) var(--ease-smooth);
+    display:flex;align-items:center;justify-content:center;gap:8px;
+  }
+  .btn-next:hover{opacity:0.88;transform:translateY(-2px);}
+  .btn-next:disabled{opacity:0.38;cursor:not-allowed;transform:none;}
+  .arrow{display:inline-block;transition:transform var(--dur-fast) var(--ease-smooth);}
+  .btn-next:hover .arrow{transform:translateX(4px);}
+
+  .result-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);margin-bottom:var(--space-6);}
+  .result-tile{
+    background:var(--bg);border-radius:var(--radius-md);
+    padding:var(--space-4) var(--space-4) var(--space-4) var(--space-6);
+    border-left:3px solid var(--accent-dim);
+    transition:transform var(--dur-fast) var(--ease-spring);
+  }
+  .result-tile:hover{transform:translateY(-3px);}
+  .result-tile .val{
+    font-family:'Manrope',sans-serif;font-size:22px;font-weight:800;
+    letter-spacing:-0.025em;color:var(--accent);
+  }
+  .result-tile .val.green{color:#1A6A4A;}
+  @media(prefers-color-scheme:dark){.result-tile .val.green{color:#4ECDA0;}}
+  .result-tile .lbl{font-size:11px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;color:var(--txt-m);margin-top:3px;}
+
+  .drive-wrap{text-align:center;padding:var(--space-8) 0 var(--space-4);}
+  .drive-icon-wrap{
+    width:56px;height:56px;margin:0 auto var(--space-4);
+    background:var(--accent-dim);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .drive-title{font-family:'Manrope',sans-serif;font-size:18px;font-weight:700;letter-spacing:-0.02em;color:var(--txt);margin-bottom:var(--space-2);}
+  .drive-desc{font-size:14px;color:var(--txt-m);line-height:1.7;max-width:380px;margin:0 auto var(--space-6);}
+  .btn-drive{
+    display:inline-flex;align-items:center;gap:var(--space-2);
+    padding:12px var(--space-8);border-radius:var(--radius-pill);
+    background:var(--accent);color:#fff;font-size:14px;
+    font-family:'Inter',sans-serif;font-weight:500;border:none;cursor:pointer;
+    transition:all var(--dur-fast) var(--ease-smooth);
+  }
+  .btn-drive:hover{opacity:0.88;transform:translateY(-2px);}
+  .btn-dl{
+    display:inline-flex;align-items:center;gap:var(--space-2);
+    padding:10px var(--space-6);border-radius:var(--radius-pill);
+    background:transparent;border:1.5px solid var(--surface2);
+    color:var(--txt-m);font-size:13px;font-family:'Inter',sans-serif;
+    font-weight:500;cursor:pointer;margin-left:var(--space-2);
+    transition:all var(--dur-fast) var(--ease-smooth);
+  }
+  .btn-dl:hover{border-color:var(--accent-l);color:var(--txt);transform:translateY(-2px);}
+  .status-msg{font-size:13px;color:var(--accent-l);margin-top:var(--space-4);min-height:20px;font-weight:500;}
+  .status-msg.err{color:#C0392B;}
+
+  .sep{border:none;border-top:1px solid var(--surface2);margin:var(--space-6) 0;}
+  .date-chip{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--bg);border:1px solid var(--surface2);
+    border-radius:var(--radius-pill);padding:5px 14px;
+    font-size:12px;color:var(--txt-m);font-weight:500;margin-bottom:var(--space-6);
+  }
+
+  .blob-wrap{position:relative;height:70px;margin-bottom:var(--space-4);overflow:hidden;border-radius:var(--radius-lg);}
+  .blob{
+    position:absolute;top:-30px;left:-20px;width:140px;height:140px;
+    background:var(--accent-dim);
+    animation:blobMorph 9s var(--ease-organic) infinite;opacity:0.7;
+  }
+  @keyframes blobMorph{
+    0%,100%{border-radius:60% 40% 70% 30%/50% 60% 40% 50%;}
+    25%{border-radius:40% 60% 55% 45%/60% 30% 70% 40%;}
+    50%{border-radius:70% 30% 40% 60%/40% 70% 30% 60%;}
+    75%{border-radius:30% 70% 60% 40%/70% 40% 60% 30%;}
+  }
+
+  .modal-bg{
+    display:none;position:fixed;inset:0;
+    background:rgba(10,12,30,0.6);z-index:100;
+    align-items:center;justify-content:center;padding:var(--space-4);
+    backdrop-filter:blur(4px);
+  }
+  .modal-bg.open{display:flex;}
+  .modal{
+    background:var(--surface);border-radius:var(--radius-lg);
+    padding:var(--space-8);max-width:420px;width:100%;
+    animation:fadeUp var(--dur-enter) var(--ease-organic) both;
+  }
+  .modal h2{font-family:'Manrope',sans-serif;font-size:20px;font-weight:700;letter-spacing:-0.02em;margin-bottom:var(--space-2);}
+  .modal p{font-size:14px;color:var(--txt-m);line-height:1.7;margin-bottom:var(--space-6);}
+  .modal ol{
+    background:var(--bg);border-radius:var(--radius-md);
+    padding:var(--space-4) var(--space-4) var(--space-4) var(--space-8);
+    font-size:13px;color:var(--txt-m);line-height:1.9;margin-bottom:var(--space-6);
+  }
+  .modal ol a{color:var(--accent);text-decoration:none;}
+  .modal ol a:hover{text-decoration:underline;}
+  .modal input[type="text"]{
+    width:100%;border:1.5px solid var(--surface2);border-radius:var(--radius-md);
+    padding:12px 14px;font-size:14px;font-family:'Inter',sans-serif;
+    color:var(--txt);background:var(--bg);margin-bottom:var(--space-4);
+    transition:border-color var(--dur-fast),box-shadow var(--dur-fast);
+  }
+  .modal input[type="text"]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim);}
+  .modal-close{
+    background:none;border:none;color:var(--txt-m);font-size:13px;cursor:pointer;
+    font-family:'Inter',sans-serif;margin-top:var(--space-2);display:block;width:100%;text-align:center;
+  }
+  .modal-close:hover{color:var(--txt);}
+
+  @media(max-width:480px){
+    body{padding:var(--space-6) var(--space-4) var(--space-12);}
+    .card{padding:var(--space-6);}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="eyebrow">Persoonlijk hulpmiddel</div>
+    <h1>Gedachteschema</h1>
+    <p>Herken en daag automatische negatieve gedachten uit — stap voor stap.</p>
+  </header>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="prog"></div></div>
+    <div class="progress-label" id="prog-lbl"></div>
+  </div>
+  <div id="app"></div>
+</div>
+
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <h2>Google Drive koppelen</h2>
+    <p>Voer eenmalig je Google OAuth Client ID in om schema's direct op te slaan in je Drive.</p>
+    <ol>
+      <li>Ga naar <a href="https://console.cloud.google.com/" target="_blank">console.cloud.google.com</a></li>
+      <li>Maak een project aan en activeer <strong>Google Drive API</strong></li>
+      <li>Credentials → Create → <strong>OAuth 2.0 Client ID</strong></li>
+      <li>Type: <em>Web application</em> — voeg je GitHub Pages URL toe als authorized origin</li>
+      <li>Kopieer de Client ID en plak hieronder</li>
+    </ol>
+    <input type="text" id="cid-input" placeholder="xxxxxxx.apps.googleusercontent.com">
+    <button class="btn-next" onclick="saveClientId()" style="width:100%;justify-content:center">Verbinden</button>
+    <button class="modal-close" onclick="closeModal()">Annuleren</button>
+  </div>
+</div>
+
+<script>
+const FEELINGS=[{label:'Blij',emoji:'😊'},{label:'Bang',emoji:'😰'},{label:'Boos',emoji:'😠'},{label:'Bedroefd',emoji:'😢'}];
+const STEPS=['intro','stap1','stap2','stap3','stap4','stap5','stap6','stap7','stap8','stap9','opslaan'];
+
+const S={
+  current:0,
+  datum:new Date().toLocaleString('nl-NL',{weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'}),
+  gebeurtenis:'',automGedachten:'',geloofwaardigheid1:70,
+  gevoel:'',gevoelSterk1:5,gedrag:'',bang:'',
+  geloofwaardigheid2:70,exploreren:'',alternatiefGedachte:'',
+  geloofwaardigheidAlt:60,geloofwaardigheid3:40,gevoelSterk2:3,nieuwGedrag:''
+};
+
+let gapiLoaded=false,tokenClient=null,accessToken=null;
+
+function updateProgress(){
+  const i=S.current,total=STEPS.length-1;
+  document.getElementById('prog').style.width=Math.round(i/total*100)+'%';
+  document.getElementById('prog-lbl').textContent=i===0?'':i>=total?'Klaar':`${i} / 9`;
+}
+
+function go(dir){
+  S.current=Math.max(0,Math.min(STEPS.length-1,S.current+dir));
+  render();window.scrollTo({top:0,behavior:'smooth'});
+}
+
+const KEY_MAP={gl1:'geloofwaardigheid1',gl2:'geloofwaardigheid2',gla:'geloofwaardigheidAlt',gl3:'geloofwaardigheid3',gs1:'gevoelSterk1',gs2:'gevoelSterk2'};
+
+function slider(id,min,max,val,suffix){
+  const ends=suffix==='%'?['0%','50%','100%']:['0','5','10'];
+  const key=KEY_MAP[id];
+  return `<div class="slider-header">
+    <span class="slider-q">${suffix==='%'?'Geloofwaardigheid':'Sterkte gevoel'}</span>
+    <span class="slider-val" id="${id}v">${val}${suffix}</span>
+  </div>
+  <input type="range" min="${min}" max="${max}" step="1" value="${val}" id="${id}"
+    oninput="S['${key}']=parseInt(this.value);document.getElementById('${id}v').textContent=this.value+'${suffix}'">
+  <div class="slider-ends">${ends.map(e=>`<span>${e}</span>`).join('')}</div>`;
+}
+
+function render(){
+  updateProgress();
+  const app=document.getElementById('app');
+  const step=STEPS[S.current];
+  const views={
+    intro:()=>`
+      <div class="card">
+        <div class="blob-wrap"><div class="blob"></div></div>
+        <div class="step-tag">Welkom</div>
+        <h2 class="step-title">Klaar om te beginnen?</h2>
+        <p class="step-desc">Dit schema loopt je in 9 stappen door een gedachtenanalyse. Neem de tijd — eerlijkheid werkt het beste.</p>
+        <div class="date-chip">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          ${S.datum}
+        </div>
+        <div class="nav"><button class="btn-next" onclick="go(1)">Starten <span class="arrow">→</span></button></div>
+      </div>`,
+
+    stap1:()=>`
+      <div class="card">
+        <div class="step-tag">Stap 1 van 9</div>
+        <h2 class="step-title">Gebeurtenis</h2>
+        <p class="step-desc">Beschrijf de situatie: waar ben je, met wie, wat gebeurt er?</p>
+        <textarea id="t1" placeholder="Bijv: Ik was op het werk toen mijn leidinggevende kritiek gaf op mijn presentatie...">${S.gebeurtenis}</textarea>
+      </div>
+      <div class="nav">
+        <button class="btn-back" onclick="go(-1)">←</button>
+        <button class="btn-next" onclick="S.gebeurtenis=document.getElementById('t1').value;go(1)">Volgende <span class="arrow">→</span></button>
+      </div>`,
+
+    stap2:()=>`
+      <div class="card">
+        <div class="step-tag">Stap 2 van 9</div>
+        <h2 class="step-title">Automatische gedachten</h2>
+        <p class="step-desc">Welke gedachten kwamen er direct op?</p>
+        <ul class="hint-box">
+          <li>Wat zegt dat over mij?</li>
+          <li>Wat zou er in het ergste geval kunnen gebeuren?</li>
+          <li>Wat zouden anderen over mij kunnen denken?</li>
+          <li>Formuleer als: "Als …, dan …"</li>
+        </ul>
+        <textarea id="t2" placeholder='"Als ik fouten maak, dan denken mensen dat ik incompetent ben..."'>${S.automGedachten}</textarea>
+        <div class="slider-section">${slider('gl1',0,100,S.geloofwaardigheid1,'%')}</div>
+      </div>
+      <div class="nav">
+        <button class="btn-back" onclick="go(-1)">←</button>
+        <button class="btn-next" onclick="S.automGedachten=document.getElementById('t2').value;S.geloofwaardigheid1=parseInt(document.getElementById('gl1').value);go(1)">Volgende <span class="arrow">→</span></button>
+      </div>`,
+
+    stap3:()=>`
+      <div class="card">
+        <div class="step-tag">Stap 3 van 9</div>
+        <h2 class="step-title">Gevoel</h2>
+        <p class="step-desc">Kies het gevoel dat het best past — de 4 B's.</p>
+        <div class="feeling-grid">
+          ${FEELINGS.map(f=>`<button class="feeling-btn${S.gevoel===f.label?' selected':''}" onclick="S.gevoel='${f.label}';render()"><span class="emoji">${f.emoji}</span>${f.label}</button>`).join('')}
+        </div>
+        <div class="slider-section">${slider('gs1',0,10,S.gevoelSterk1,'')}</div>
+      </div>
+      <div class="nav">
+        <button class="btn-back" onclick="go(-1)">←</button>
+        <button class="btn-next" ${!S.gevoel?'disabled':''} onclick="S.gevoelSterk1=parseInt(document.getElementById('gs1').value);go(1)">Volgende <span class="arrow">→</span></button>
+      </div>`,
+
+    stap4:()=>`
+      <div class="card">
+        <div class="step-tag">Stap 4 van 9</div>
+        <h2 class="step-title">Gedrag</h2>
+        <p class="step-desc">Hoe reageer je? Wat doe je, of wat vermijd je?</p>
+        <textarea id="t4" placeholder="Bijv: Ik trok me terug en vermeed verder contact...">${S.gedrag}</textarea>
+      </div>
+      <div class="nav">
+        <button class="btn-back" onclick="go(-1)">←</button>
+        <button class="btn-next" onclick="S.gedrag=document.getElementById('t4').value;go(1)">Volgende <span class="arrow">→</span></button>
+      </div>`,
+
+    stap5:()=>`
+      <div class="card">
+        <div class="step-tag">Stap 5 van 9</div>
+        <h2 class="step-title">BANG-gedachte</h2>
+        <p class="step-desc">De <strong>B</strong>elangrijkste <strong>A</strong>utomatische <strong>N</strong>egatieve <strong>G</strong>edachte.</p>
+        <div class="bang-callout">Welke gedachte is het meest verantwoordelijk voor het gevoel dat dit schema triggerde?</div>
+        <textarea id="t5" placeholder="Bijv: Als ik fouten maak, ben ik niet goed genoeg...">${S.bang}</textarea>
+        <div class="slider-section">${slider('gl2',0,100,S.geloofwaardigheid2,'%')}</div>
+      </div>
+      <div class="nav">
+        <button class="btn-back" onclick="go(-1)">←</button>
+        <button class="btn-next" onclick="S.bang=document.getElementById('t5').value;S.geloofwaardigheid2=parseInt(document.getElementById('gl2').value);go(1)">Volgende <span class="arrow">→</span></button>
+      </div>`,
+
+    stap6:()=>`
+      <div class="card">
+        <div class="step-tag">Stap 6 van 9</div>
+        <h2 class="step-title">Exploreren & uitdagen</h2>
+        <p class="step-desc">Stel jezelf eerlijk de volgende vragen.</p>
+        <div class="challenge-box">
+          <p>1. Wat is het bewijs dat deze gedachte <em>waar</em> is — en <em>niet waar</em>?</p>
+          <p>2. Is er een andere verklaring voor de situatie?</p>
+          <p>3. Herken je een denkfout? (catastroferen, zwart-wit denken…)</p>
+          <p>4. Wat zou je een goede vriend zeggen in dezelfde situatie?</p>
+          <p>5. Hoe helpend is deze gedachte? Wat zou je beter kunnen denken?</p>
+        </div>
+        <textarea id="t6" style="min-height:120px" placeholder="Schrijf je antwoorden hier...">${S.exploreren}</textarea>
+      </div>
+      <div class="nav">
+        <button class="btn-back" onclick="go(-1)">←</button>
+        <button class="btn-next" onclick="S.exploreren=document.getElementById('t6').value;go(1)">Volgende <span class="arrow">→</span></button>
+      </div>`,
+
+    stap7:()=>`
+      <div class="card">
+        <div class="step-tag">Stap 7 van 9</div>
+        <h2 class="step-title">Alternatieve gedachte</h2>
+        <p class="step-desc">Kies de gedachte die het meest geloofwaardig of helpend voor je is.</p>
+        <textarea id="t7" placeholder="Bijv: Ik maak soms fouten, maar dat maakt me niet incompetent...">${S.alternatiefGedachte}</textarea>
+        <div class="slider-section">${slider('gla',0,100,S.geloofwaardigheidAlt,'%')}</div>
+      </div>
+      <div class="nav">
+        <button class="btn-back" onclick="go(-1)">←</button>
+        <button class="btn-next" onclick="S.alternatiefGedachte=document.getElementById('t7').value;S.geloofwaardigheidAlt=parseInt(document.getElementById('gla').value);go(1)">Volgende <span class="arrow">→</span></button>
+      </div>`,
+
+    stap8:()=>`
+      <div class="card">
+        <div class="step-tag">Stap 8 van 9</div>
+        <h2 class="step-title">Resultaat</h2>
+        <p class="step-desc">Kijk opnieuw naar je negatieve gedachte en je gevoel.</p>
+        <div class="result-grid">
+          <div class="result-tile"><div class="val">${S.geloofwaardigheid2}%</div><div class="lbl">BANG — voor</div></div>
+          <div class="result-tile"><div class="val green" id="gl3v">${S.geloofwaardigheid3}%</div><div class="lbl">BANG — nu</div></div>
+        </div>
+        <div>${slider('gl3',0,100,S.geloofwaardigheid3,'%')}</div>
+        <hr class="sep">
+        <div class="result-grid">
+          <div class="result-tile"><div class="val">${S.gevoelSterk1}</div><div class="lbl">Gevoel — voor</div></div>
+          <div class="result-tile"><div class="val green" id="gs2v">${S.gevoelSterk2}</div><div class="lbl">Gevoel — nu</div></div>
+        </div>
+        <div>${slider('gs2',0,10,S.gevoelSterk2,'')}</div>
+      </div>
+      <div class="nav">
+        <button class="btn-back" onclick="go(-1)">←</button>
+        <button class="btn-next" onclick="S.geloofwaardigheid3=parseInt(document.getElementById('gl3').value);S.gevoelSterk2=parseInt(document.getElementById('gs2').value);go(1)">Volgende <span class="arrow">→</span></button>
+      </div>`,
+
+    stap9:()=>`
+      <div class="card">
+        <div class="step-tag">Stap 9 van 9</div>
+        <h2 class="step-title">Nieuw gedrag</h2>
+        <p class="step-desc">Hoe had je de situatie kunnen aanpakken vanuit de alternatieve gedachte?</p>
+        <textarea id="t9" placeholder="Bijv: Ik had de feedback rustig kunnen aanhoren en vragen kunnen stellen...">${S.nieuwGedrag}</textarea>
+      </div>
+      <div class="nav">
+        <button class="btn-back" onclick="go(-1)">←</button>
+        <button class="btn-next" onclick="S.nieuwGedrag=document.getElementById('t9').value;go(1)">Afronden <span class="arrow">→</span></button>
+      </div>`,
+
+    opslaan:()=>`
+      <div class="card">
+        <div class="step-tag">Klaar</div>
+        <h2 class="step-title">Schema ingevuld</h2>
+        <p class="step-desc">Goed gedaan. Hier is een samenvatting van je sessie.</p>
+        <div class="result-grid">
+          <div class="result-tile"><div class="val" style="font-size:18px">${FEELINGS.find(f=>f.label===S.gevoel)?.emoji||'—'} ${S.gevoel||'—'}</div><div class="lbl">Gevoel</div></div>
+          <div class="result-tile"><div class="val green">−${Math.max(0,S.gevoelSterk1-S.gevoelSterk2)}</div><div class="lbl">Gevoelsafname</div></div>
+          <div class="result-tile"><div class="val" style="font-size:16px">${S.geloofwaardigheid2}% → ${S.geloofwaardigheid3}%</div><div class="lbl">BANG geloofwaardigheid</div></div>
+          <div class="result-tile"><div class="val green">${S.geloofwaardigheidAlt}%</div><div class="lbl">Alternatief geloofwaardig</div></div>
+        </div>
+        <div class="drive-wrap">
+          <div class="drive-icon-wrap">
+            <svg width="26" height="23" viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg">
+              <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
+              <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/>
+              <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/>
+              <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/>
+              <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/>
+              <path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 27h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
+            </svg>
+          </div>
+          <div class="drive-title">Opslaan in Google Drive</div>
+          <div class="drive-desc">Sla het schema op als tekstbestand in je Drive. Je logt eenmalig in via Google.</div>
+          <div>
+            <button class="btn-drive" onclick="handleDriveSave()">Opslaan in Drive</button>
+            <button class="btn-dl" onclick="downloadTxt()">↓ .txt</button>
+          </div>
+          <div class="status-msg" id="save-status"></div>
+        </div>
+      </div>
+      <div class="nav" style="margin-top:var(--space-4)">
+        <button class="btn-back" onclick="go(-1)">←</button>
+        <button class="btn-next" onclick="resetApp()" style="background:var(--accent-l)">Nieuw schema <span class="arrow">→</span></button>
+      </div>`
+  };
+  app.innerHTML=views[step]();
+}
+
+function buildText(){
+  return `GEDACHTESCHEMA\n${S.datum}\n${'─'.repeat(48)}\n\nSTAP 1 — GEBEURTENIS\n${S.gebeurtenis||'—'}\n\nSTAP 2 — AUTOMATISCHE GEDACHTEN\n${S.automGedachten||'—'}\nGeloofwaardigheid: ${S.geloofwaardigheid1}%\n\nSTAP 3 — GEVOEL\nGevoel: ${S.gevoel||'—'}\nSterkte: ${S.gevoelSterk1}/10\n\nSTAP 4 — GEDRAG\n${S.gedrag||'—'}\n\nSTAP 5 — BANG\n${S.bang||'—'}\nGeloofwaardigheid: ${S.geloofwaardigheid2}%\n\nSTAP 6 — EXPLOREREN & UITDAGEN\n${S.exploreren||'—'}\n\nSTAP 7 — ALTERNATIEVE GEDACHTE\n${S.alternatiefGedachte||'—'}\nGeloofwaardigheid: ${S.geloofwaardigheidAlt}%\n\nSTAP 8 — RESULTAAT\nBANG nu: ${S.geloofwaardigheid3}% (was ${S.geloofwaardigheid2}%)\nGevoel nu: ${S.gevoelSterk2}/10 (was ${S.gevoelSterk1}/10)\n\nSTAP 9 — NIEUW GEDRAG\n${S.nieuwGedrag||'—'}`;
+}
+
+function downloadTxt(){
+  const blob=new Blob([buildText()],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`gedachteschema-${new Date().toISOString().slice(0,10)}.txt`;
+  a.click();
+}
+
+function resetApp(){
+  Object.assign(S,{
+    current:0,
+    datum:new Date().toLocaleString('nl-NL',{weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'}),
+    gebeurtenis:'',automGedachten:'',geloofwaardigheid1:70,
+    gevoel:'',gevoelSterk1:5,gedrag:'',bang:'',
+    geloofwaardigheid2:70,exploreren:'',alternatiefGedachte:'',
+    geloofwaardigheidAlt:60,geloofwaardigheid3:40,gevoelSterk2:3,nieuwGedrag:''
+  });
+  render();
+}
+
+const SCOPES='https://www.googleapis.com/auth/drive.file';
+
+function saveClientId(){
+  const v=document.getElementById('cid-input').value.trim();
+  if(!v)return;
+  localStorage.setItem('gd_cid',v);
+  closeModal();initGapi(v);
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+function openModal(){
+  document.getElementById('cid-input').value=localStorage.getItem('gd_cid')||'';
+  document.getElementById('modal').classList.add('open');
+}
+function setStatus(msg,err){
+  const el=document.getElementById('save-status');
+  if(!el)return;el.textContent=msg;el.className='status-msg'+(err?' err':'');
+}
+function initGapi(cid){
+  if(!cid)return;
+  gapi.load('client',async()=>{
+    await gapi.client.init({});
+    await gapi.client.load('https://www.googleapis.com/discovery/v1/apis/drive/v3/rest');
+    tokenClient=google.accounts.oauth2.initTokenClient({
+      client_id:cid,scope:SCOPES,
+      callback:resp=>{
+        if(resp.error){setStatus('Inloggen mislukt: '+resp.error,true);return;}
+        accessToken=resp.access_token;uploadToDrive();
+      }
+    });
+    gapiLoaded=true;
+  });
+}
+function handleDriveSave(){
+  const cid=localStorage.getItem('gd_cid');
+  if(!cid){openModal();return;}
+  if(!gapiLoaded){setStatus('API laden, probeer opnieuw...',true);initGapi(cid);return;}
+  setStatus('Verbinding maken...');
+  tokenClient.requestAccessToken({prompt:accessToken?'':'consent'});
+}
+async function uploadToDrive(){
+  setStatus('Bestand aanmaken...');
+  const content=buildText();
+  const filename=`Gedachteschema ${new Date().toLocaleDateString('nl-NL')}.txt`;
+  const boundary='-------gedachteschema2025';
+  const body=`\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n`+
+    JSON.stringify({name:filename,mimeType:'text/plain'})+
+    `\r\n--${boundary}\r\nContent-Type: text/plain\r\n\r\n`+content+
+    `\r\n--${boundary}--`;
+  try{
+    const r=await gapi.client.request({
+      path:'https://www.googleapis.com/upload/drive/v3/files',
+      method:'POST',params:{uploadType:'multipart'},
+      headers:{'Content-Type':`multipart/related; boundary="${boundary}"`,'Authorization':'Bearer '+accessToken},
+      body
+    });
+    if(r.status===200)setStatus(`✓ Opgeslagen als "${filename}"`);
+    else setStatus('Fout (status '+r.status+')',true);
+  }catch(e){setStatus('Fout: '+(e.result?.error?.message||e.message||'onbekend'),true);}
+}
+(function(){
+  const s1=document.createElement('script');s1.src='https://apis.google.com/js/api.js';
+  s1.onload=()=>{const cid=localStorage.getItem('gd_cid');if(cid)initGapi(cid);};
+  document.head.appendChild(s1);
+  const s2=document.createElement('script');s2.src='https://accounts.google.com/gsi/client';
+  document.head.appendChild(s2);
+})();
+render();
+</script>
+</body>
+</html>
